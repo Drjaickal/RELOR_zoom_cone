@@ -4,8 +4,18 @@ import React from 'react'
 const Home = () => {
   const now = new Date();
 
-  const time = now.toLocaleTimeString('en-india', { hour: '2-digit', minute: '2-digit' });
-  const date = (new Intl.DateTimeFormat('en-india', { dateStyle: 'full' })).format(now);
+  // 1. Use the Date object's getTimezoneOffset() method to get the offset in minutes from UTC
+  const offsetInMinutes = now.getTimezoneOffset();
+
+  // 2. Calculate the offset in hours (IST is +5:30 from UTC)
+  const offsetInHours = offsetInMinutes / 60 + 5.5;
+
+  // 3. Create a new Date object adjusted to IST
+  const istDate = new Date(now.getTime() + offsetInHours * 60 * 60 * 1000);
+
+  // 4. Format the time and date using toLocaleTimeString and Intl.DateTimeFormat
+  const time = istDate.toLocaleTimeString('en-india', { hour: '2-digit', minute: '2-digit' });
+  const date = (new Intl.DateTimeFormat('en-india', { dateStyle: 'full' })).format(istDate);
   return (
     <section className="flex size-full flex-col gap-10 text-white">
       <div className="h-[300px] w-full rounded-[20px] bg-hero bg-cover">
