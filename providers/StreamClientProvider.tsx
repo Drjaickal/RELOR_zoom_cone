@@ -10,7 +10,7 @@ import Loader from '@/components/Loader';
 const API_KEY = process.env.NEXT_PUBLIC_STREAM_API_KEY;
 
 const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
-    const [videoClient, setVideoClient] = useState<StreamVideoClient>();
+    const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
     const { user, isLoaded } = useUser();
 
     useEffect(() => {
@@ -20,15 +20,20 @@ const StreamVideoProvider = ({ children }: { children: ReactNode }) => {
         const client = new StreamVideoClient({
             apiKey: API_KEY,
             user: {
-                id: user?.id,
-                name: user?.username || user?.id,
-                image: user?.imageUrl,
+                id: user.id,
+                name: user.username || user.id,
+                image: user.imageUrl,
             },
             tokenProvider,
         });
 
         setVideoClient(client);
-    }, [user, isLoaded]);
+
+        // ✅ CLEANUP (VERY IMPORTANT)
+        return () => {
+            client.disconnectUser();
+        };
+    }, [user?.id, isLoaded]);
 
     if (!videoClient) return <Loader />;
 
